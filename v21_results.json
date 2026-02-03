@@ -1,0 +1,32 @@
+{
+  "note": "Run on Python 3.12 — scores ~0.03 lower than Py3.14 due to library version differences",
+  "best_r2_a_py312": 0.5465,
+  "best_single_a_py312": {"name": "xgb_smoter_p85_x3", "r2": 0.5388},
+  "catboost_optuna_params": {"depth": 5, "lr": 0.0041, "iters": 1202, "l2": 4.607, "loss": "RMSE"},
+  "all_scores_a_py312": {
+    "xgb_smoter_p85_x3": 0.5388,
+    "xgb_mae_log_wsqrt": 0.5380,
+    "xgb_mse_log_wsqrt": 0.5365,
+    "xgb_huber_log_wsqrt": 0.5338,
+    "xgb_smoter_p80_x2": 0.5320,
+    "lgb_huber_log_wsqrt": 0.5295,
+    "lgb_mse_log_wsqrt": 0.5292,
+    "cb_rmse_log_wsqrt": 0.5259,
+    "xgb_smoter_p75_x2": 0.5250,
+    "cb_optuna_best": 0.5244,
+    "lgb_mae_log_wsqrt": 0.5221,
+    "cb_huber_log_wsqrt": 0.5173,
+    "lgb_smoter_p80_x2": 0.5147,
+    "cb_mae_log_wsqrt": 0.4617,
+    "huber_reg_log_wsqrt": 0.4527,
+    "enet_log": 0.4152
+  },
+  "key_findings": {
+    "catboost_disappointing": "Best 0.5259 RMSE, 0.5244 Optuna — much weaker than XGB/LGB",
+    "mae_loss_helps_xgb": "XGB MAE 0.5380 > MSE 0.5365 (+0.0015). Does NOT help LGB/CB.",
+    "smoter_helps_xgb_tail": "XGB SMOTER p85 x3 = 0.5388 (+0.0023). Only top-15% works.",
+    "smoter_hurts_lgb": "LGB SMOTER 0.5147 vs baseline 0.5292",
+    "blend": "Full 16-model blend 0.5465, XGB_SMOTER dominates at 50%"
+  },
+  "model_b": "KILLED before completion"
+}
