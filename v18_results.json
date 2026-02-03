@@ -1,0 +1,13 @@
+{
+  "best_r2": 0.5422,
+  "winsorization": {
+    "clip_8": {"r2_orig": 0.5233, "r2_clip": 0.5795},
+    "clip_10": {"r2_orig": 0.5388, "r2_clip": 0.5675},
+    "clip_12": {"r2_orig": 0.5422, "r2_clip": 0.5530}
+  },
+  "nested_stacking": {
+    "ridge_l2": 0.5376,
+    "enet_l2": "killed_before_completion"
+  },
+  "notes": "Winsorize@12 improves single model to 0.5422. Nested stacking (0.5376) worse than simple blend (0.546). Process killed by system before completion."
+}
