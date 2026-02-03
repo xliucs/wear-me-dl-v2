@@ -1,0 +1,34 @@
+{
+  "best_r2_a": 0.5444911047651351,
+  "best_single": {
+    "name": "xgb_decomposed_full",
+    "r2": 0.5453274163289128
+  },
+  "all_scores": {
+    "xgb_standard": 0.5364842379609197,
+    "lgb_standard": 0.5291706363324534,
+    "xgb_decomposed": 0.4547302595887682,
+    "lgb_decomposed": 0.42636111200443183,
+    "xgb_decomposed_full": 0.5453274163289128,
+    "lgb_decomposed_full": 0.5346527116750384,
+    "xgb_hybrid": 0.199376770879389,
+    "lgb_hybrid": 0.513306452429932,
+    "enet": 0.4151597451926894
+  },
+  "insulin_decomp_r2": {
+    "xgb_insulin_r2": 0.35078435682968634,
+    "homa_reconstructed_r2": 0.4547302595887682
+  },
+  "blend_weights": {
+    "xgb_standard": 0.16362090082217895,
+    "lgb_standard": 0.08216392868441588,
+    "xgb_decomposed": 0.012054030177546136,
+    "lgb_decomposed": 0.0016109713880242244,
+    "xgb_decomposed_full": 0.6560815829551889,
+    "lgb_decomposed_full": 0.018033872653086366,
+    "xgb_hybrid": 0.010189257562107708,
+    "lgb_hybrid": 0.04256892865502679,
+    "enet": 0.013676527102424965
+  },
+  "elapsed": 281.1928930282593
+}
