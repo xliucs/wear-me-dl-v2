@@ -18,8 +18,9 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V10 | Residual analysis + greedy blend | 0.5287 | 0.5365 | Residuals unpredictable; extreme HOMA [8+] bias=+4.94; 3-model greedy = 15-model random |
 | V11 | Tail fix: sample weighting | **0.5367** (sqrt weight) | **0.5414** | sqrt(y) sample weighting = NEW BEST. Upweighting high HOMA helps model learn tail. |
 | V12 | Weight exponent search | 0.5367 (y^0.5 optimal) | 0.5414 | Confirmed y^0.5 is optimal exponent. Weighting helps XGB +0.008 but not LGB/HGBR. No blend gain. |
+| **V13** | **Optuna weighted XGB + MLP** | **0.5406** (Optuna wsqrt) | **0.5452** | **Optuna re-tuned XGB WITH weights: d4, lr=0.017, n=612. MLP catastrophic with log target.** |
 
-**Current Best: R² = 0.5414** (V11/V12 blend: XGB_wsqrt 53% + ElasticNet 28% + XGB_wprop 20%)
+**Current Best: R² = 0.5452** (V13 blend)
 
 ## Dataset
 - **Samples:** 1,078 participants
@@ -42,6 +43,7 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 - **Box-Cox target**: Slightly worse than log1p.
 - **PyTorch neural nets**: SIGSEGV on Python 3.14; needs different Python version.
 - **Residual correction (V10)**: Meta-learning on prediction errors makes things worse. Residuals have negative R² — they're unpredictable noise given our features.
+- **sklearn MLPRegressor with log target**: Predictions explode after expm1 inverse (R² = -billions). Raw target MLP only reaches 0.28-0.36.
 
 ### V10 Residual Analysis (Key Discovery)
 | HOMA_IR Range | n | MAE | Bias | RMSE |
@@ -85,6 +87,6 @@ Top features by mutual information:
 ```
 data.csv                    # 1078 samples, 25+1 features
 eval_framework.py           # Standardized CV + metrics
-v1_baseline.py → v12_weight_exploit.py  # Version progression
+v1_baseline.py → v13_optuna_weighted.py  # Version progression
 v*_results.json             # Saved results per version
 ```
