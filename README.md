@@ -28,6 +28,11 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V19 | KNN + kernel methods + residual correction | 0.5398 (XGB) | 0.5465 | KNN peaks at 0.4547 (much worse). **Kernel Ridge RBF (0.524) adds blend diversity** replacing ElasticNet. Residual correction hurts. All roads lead to R²≈0.546. |
 | **V20** | **QT inputs + quantile reg + Model B Optuna** | **0.5408** (LGB QT wsqrt) | **0.5467** | **QuantileTransformer on inputs helps LGB +0.0014. Model B: R²=0.2592 (XGB Optuna wsqrt, big jump from 0.2449).** |
 
+| V21 | CatBoost + Huber/MAE loss + SMOTER | 0.5388 (XGB SMOTER p85) | 0.5465 | **CatBoost disappointing (0.5259).** MAE helps XGB +0.0015. SMOTER p85 x3 helps +0.0023. Py3.12 env. |
+| V22 | MAE + SMOTER + pseudo-insulin | 0.5388 (XGB MSE+SMOTER) | 0.5461 | MAE/SMOTER confirmed on Py3.14. **Pseudo-insulin feature HURTS** (noisy R²=0.34). Interaction explosion hurts. |
+| V23 | Optuna MAE + Optuna SMOTER | 0.5371 (XGB Optuna MAE) | — | **MSE-tuned params beat Optuna MAE params.** SMOTER Optuna too conservative. Partial run (killed). |
+| V24 | Target decomposition (predict insulin) | 0.5453 (XGB decomposed) | 0.5445 | Predict insulin→reconstruct HOMA. Insulin R²=0.44 from features. Error amplification. Doesn't beat standard. |
+
 **Current Best Model A: R² = 0.5467** (V20 blend: LGB_QT 71% + ElasticNet 29%)
 **Current Best Model B: R² = 0.2592** (V20 blend: XGB_Optuna 75% + ElasticNet 20% + Ridge 5%)
 
