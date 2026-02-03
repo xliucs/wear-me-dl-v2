@@ -22,9 +22,10 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | **V14** | **Optuna LGB + GBR + feature selection** | **0.5398** (LGB Optuna wsqrt) | **0.5465** | **LGB matches XGB when Optuna-tuned with weights. GBR adds diversity. Feature selection hurts.** |
 | V15 | Optuna HGBR + cross-weight blend | 0.5398 (XGB opt w0.5) | 0.5462 | HGBR peaks at 0.5331 (weaker). Multi-weight-exponent blending doesn't beat V14. |
 | V16 | Nested target encoding + piecewise | 0.5398 (XGB Optuna wsqrt) | 0.5463 | Nested (honest) TE hurts (0.534-0.536 vs 0.540). Leaky TE inflated to 0.584 — stacking leakage. Piecewise (0.535) worse than single. |
-| V17 | Model B + power transforms | 0.5398 (XGB Optuna) | 0.5462 | **Power transforms don't beat log1p** (y^0.3=0.539). **Model B: R²=0.2447** blend (beats paper 0.212 by +0.033). ElasticNet l1=0.9 best single (0.238). |
+| **V17** | **Model B + power transforms** | **0.5398** (XGB Optuna) | **0.5466** | **Power transforms don't beat log1p** (y^0.3=0.539). **Model B: R²=0.2449** blend (beats paper 0.212 by +0.033). Marginal new Model A best. |
 
-**Current Best: R² = 0.5465** (V14 blend)
+**Current Best Model A: R² = 0.5466** (V17 blend: LGB 49% + ElasticNet 28% + XGB_power0.2 22%)
+**Current Best Model B: R² = 0.2449** (ElasticNet 63% + XGB 24% + LGB 13%)
 
 ## Dataset
 - **Samples:** 1,078 participants
