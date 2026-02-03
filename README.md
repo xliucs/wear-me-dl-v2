@@ -32,6 +32,10 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V22 | MAE + SMOTER + pseudo-insulin | 0.5388 (XGB MSE+SMOTER) | 0.5461 | MAE/SMOTER confirmed on Py3.14. **Pseudo-insulin feature HURTS** (noisy R²=0.34). Interaction explosion hurts. |
 | V23 | Optuna MAE + Optuna SMOTER | 0.5371 (XGB Optuna MAE) | — | **MSE-tuned params beat Optuna MAE params.** SMOTER Optuna too conservative. Partial run (killed). |
 | V24 | Target decomposition (predict insulin) | 0.5453 (XGB decomposed) | 0.5445 | Predict insulin→reconstruct HOMA. Insulin R²=0.44 from features. Error amplification. Doesn't beat standard. |
+| **V25** | **Deep error analysis** | 0.5365 | — | **Theoretical max R²=0.614** (k-NN neighbor variance). Residual-feature corr ~0 (all signal extracted). Glucose drop costs 0.096. Wearables cost 0.01. |
+| V26 | Calibration + stretch | 0.5392 (XGB quantile 0.5) | — | Isotonic/linear calibration HURTS. Scale factor 1.03 gives +0.0007. Quantile median slightly better than MSE. Killed during blend. |
+| V27 | Hypothesis-driven (stratification) | 0.5384 (XGB d=3) | 0.5412 | **ALL stratification rejected**: sex (-0.018), BMI (-0.006), glucose (-0.022). Not enough data per stratum. Train-test gap (0.29) is information loss, not overfitting. |
+| V28 | Maximum diversity blend | 0.5384 (XGB d=3) | 0.5400 | **Error correlations 0.99+ between ALL trees.** Only ElasticNet provides diversity (0.878). Blending more trees is nearly useless. |
 
 **Current Best Model A: R² = 0.5467** (V20 blend: LGB_QT 71% + ElasticNet 29%)
 **Current Best Model B: R² = 0.2592** (V20 blend: XGB_Optuna 75% + ElasticNet 20% + Ridge 5%)
