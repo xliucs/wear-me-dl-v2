@@ -1,0 +1,16 @@
+{
+  "best_r2_a": 0.5371,
+  "best_single": {"name": "xgb_optuna_mae", "r2": 0.5371},
+  "xgb_mae_optuna_params": {"d": 4, "lr": 0.0124, "n": 1191, "col": 0.79, "mcw": 24, "alpha": 9.956},
+  "xgb_smoter_optuna_params": {"d": 4, "lr": 0.0302, "n": 500, "sm_pct": 86, "sm_mult": 1},
+  "all_scores": {
+    "xgb_optuna_mae": 0.5371,
+    "xgb_optuna_smoter": 0.5358
+  },
+  "key_findings": {
+    "mae_optuna_vs_mse_params": "MSE-tuned params with MAE loss (0.5380) BEAT Optuna MAE params (0.5371). Optimal hyperparams are loss-agnostic.",
+    "smoter_optuna_disappointing": "Joint Optuna found pct=86/mult=1 (conservative). 0.5358 vs simple SMOTER p85/x3 = 0.5388. Optuna explored too conservatively.",
+    "conclusion": "Optuna re-tuning for alternative losses does NOT help. The V13/V14 MSE-tuned params are already near-optimal across loss functions."
+  },
+  "killed_before": "LGB MAE Optuna, multi-seed ensemble, blending"
+}
