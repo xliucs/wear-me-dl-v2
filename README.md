@@ -26,9 +26,10 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V18 | Nested stacking + winsorization | 0.5422 (XGB winsor@12) | ~0.546 | **Nested stacking (0.5376) WORSE than simple blend.** Winsorize@12 gives single XGB 0.5422. Stacking adds variance, not signal — confirms simple Dirichlet blend is optimal. |
 
 | V19 | KNN + kernel methods + residual correction | 0.5398 (XGB) | 0.5465 | KNN peaks at 0.4547 (much worse). **Kernel Ridge RBF (0.524) adds blend diversity** replacing ElasticNet. Residual correction hurts. All roads lead to R²≈0.546. |
+| **V20** | **QT inputs + quantile reg + Model B Optuna** | **0.5408** (LGB QT wsqrt) | **0.5467** | **QuantileTransformer on inputs helps LGB +0.0014. Model B: R²=0.2592 (XGB Optuna wsqrt, big jump from 0.2449).** |
 
-**Current Best Model A: R² = 0.5466** (V17 blend: LGB 49% + ElasticNet 28% + XGB_power0.2 22%)
-**Current Best Model B: R² = 0.2449** (ElasticNet 63% + XGB 24% + LGB 13%)
+**Current Best Model A: R² = 0.5467** (V20 blend: LGB_QT 71% + ElasticNet 29%)
+**Current Best Model B: R² = 0.2592** (V20 blend: XGB_Optuna 75% + ElasticNet 20% + Ridge 5%)
 
 ## Dataset
 - **Samples:** 1,078 participants

@@ -1,0 +1,28 @@
+{
+  "best_r2_a": 0.5467232442450445,
+  "best_r2_b": 0.259196473212123,
+  "best_single_a": {
+    "name": "lgb_qt_log_wsqrt_v7",
+    "r2": 0.5407893598464126
+  },
+  "all_scores_a": {
+    "lgb_qt_log_wsqrt_v7": 0.5407893598464126,
+    "xgb_qt_log_wsqrt_v7": 0.5400571841681681,
+    "xgb_log_wsqrt_v7": 0.5398094949802106,
+    "lgb_log_wsqrt_v7": 0.5390673246553083,
+    "quantile_wavg": 0.5282572103289498,
+    "quantile_avg_025_050_075": 0.5278309070742411,
+    "xgb_quantile0.5_wsqrt_v7": 0.5270869701265015,
+    "xgb_qt_log_wsqrt_raw": 0.5208877491408895,
+    "enet_01_eng": 0.5109722793479534,
+    "xgb_quantile0.25_wsqrt_v7": 0.4126768555244159,
+    "xgb_quantile0.75_wsqrt_v7": 0.3566184706025268
+  },
+  "all_scores_b": {
+    "xgb_optuna_wsqrt_dw": 0.2572907780025453,
+    "enet_09_dw": 0.2380076961750861,
+    "lgb_d3_log_dw": 0.21337819614924947,
+    "ridge_1000_dw": 0.1843471119786565
+  },
+  "elapsed": 323.55129194259644
+}
