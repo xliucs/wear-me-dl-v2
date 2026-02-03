@@ -1,0 +1,43 @@
+{
+  "best_r2_a": 0.5460654360848446,
+  "best_single_a": {
+    "name": "xgb_mse_smoter",
+    "r2": 0.5388098939378927
+  },
+  "insulin_predictor_r2": 0.34204193084944867,
+  "all_scores_a": {
+    "xgb_mse": 0.5364842379609197,
+    "lgb_mse": 0.5291706363324534,
+    "enet": 0.4151597451926894,
+    "xgb_mae": 0.5380102645920409,
+    "xgb_mse_smoter": 0.5388098939378927,
+    "xgb_mae_smoter": 0.5188920118104678,
+    "xgb_mse_pinsulin": 0.5284532263545703,
+    "lgb_mse_pinsulin": 0.5094201737234079,
+    "xgb_mae_smoter_pinsulin": 0.5066968700132812,
+    "xgb_mse_interactions": 0.5350334615205996,
+    "xgb_mse_mega": 0.5254843793590037,
+    "xgb_mae_mega": 0.52713433176629,
+    "lgb_mse_mega": 0.5140202605549851,
+    "xgb_mse_smoter_mega": 0.5185324011336391,
+    "enet_mega": 0.42552941393073596
+  },
+  "blend_weights": {
+    "xgb_mse": 0.04985055426446173,
+    "lgb_mse": 0.0195346810962207,
+    "enet": 0.13061462144018365,
+    "xgb_mae": 0.03341455094211606,
+    "xgb_mse_smoter": 0.48562400711432807,
+    "xgb_mae_smoter": 0.06977535602510826,
+    "xgb_mse_pinsulin": 0.00020581174810488525,
+    "lgb_mse_pinsulin": 0.010418640169888305,
+    "xgb_mae_smoter_pinsulin": 0.029070048463973146,
+    "xgb_mse_interactions": 0.06614429517806393,
+    "xgb_mse_mega": 0.0023719047014626646,
+    "xgb_mae_mega": 0.06198108785967015,
+    "lgb_mse_mega": 0.0011256337756285436,
+    "xgb_mse_smoter_mega": 0.0139045347475041,
+    "enet_mega": 0.025964272473285813
+  },
+  "elapsed": 582.7189440727234
+}
