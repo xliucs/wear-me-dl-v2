@@ -1,0 +1,10 @@
+{
+  "best_blend_r2": 0.5400,
+  "blend_weights": {"xgb_d3": 0.556, "gbr": 0.342, "enet": 0.082},
+  "singles": {"xgb_d3": 0.5384, "xgb_v13": 0.5365, "gbr": 0.5379, "lgb": 0.5292, "lgb_qt": 0.5274, "enet": 0.4152},
+  "error_correlations": {
+    "xgb_d3_vs_xgb_v13": 0.999, "xgb_d3_vs_lgb": 0.991, "xgb_d3_vs_gbr": 0.995,
+    "xgb_d3_vs_enet": 0.878, "lgb_vs_gbr": 0.993, "lgb_vs_enet": 0.886, "gbr_vs_enet": 0.878
+  },
+  "key_finding": "ALL tree models have 0.99+ error correlation. They fail on the SAME samples. Only ElasticNet provides real diversity (0.878). Blending trees is nearly useless."
+}
