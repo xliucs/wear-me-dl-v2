@@ -1,0 +1,14 @@
+{
+  "best_r2": 0.5365387751279532,
+  "greedy_r2": 0.5363375795767029,
+  "greedy_models": [
+    "xgb_d3_log_s2024_v7",
+    "enet_01_eng",
+    "xgb_d3_log_s42_eng"
+  ],
+  "best_single": {
+    "name": "xgb_d3_log_s2024_v7",
+    "r2": 0.5286941750545336
+  },
+  "elapsed": 188.21601581573486
+}
