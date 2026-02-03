@@ -24,10 +24,8 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V16 | Nested target encoding + piecewise | 0.5398 (XGB Optuna wsqrt) | 0.5463 | Nested (honest) TE hurts (0.534-0.536 vs 0.540). Leaky TE inflated to 0.584 — stacking leakage. Piecewise (0.535) worse than single. |
 | **V17** | **Model B + power transforms** | **0.5398** (XGB Optuna) | **0.5466** | **Power transforms don't beat log1p** (y^0.3=0.539). **Model B: R²=0.2449** blend (beats paper 0.212 by +0.033). Marginal new Model A best. |
 | V18 | Nested stacking + winsorization | 0.5422 (XGB winsor@12) | ~0.546 | **Nested stacking (0.5376) WORSE than simple blend.** Winsorize@12 gives single XGB 0.5422. Stacking adds variance, not signal — confirms simple Dirichlet blend is optimal. |
-
 | V19 | KNN + kernel methods + residual correction | 0.5398 (XGB) | 0.5465 | KNN peaks at 0.4547 (much worse). **Kernel Ridge RBF (0.524) adds blend diversity** replacing ElasticNet. Residual correction hurts. All roads lead to R²≈0.546. |
 | **V20** | **QT inputs + quantile reg + Model B Optuna** | **0.5408** (LGB QT wsqrt) | **0.5467** | **QuantileTransformer on inputs helps LGB +0.0014. Model B: R²=0.2592 (XGB Optuna wsqrt, big jump from 0.2449).** |
-
 | V21 | CatBoost + Huber/MAE loss + SMOTER | 0.5388 (XGB SMOTER p85) | 0.5465 | **CatBoost disappointing (0.5259).** MAE helps XGB +0.0015. SMOTER p85 x3 helps +0.0023. Py3.12 env. |
 | V22 | MAE + SMOTER + pseudo-insulin | 0.5388 (XGB MSE+SMOTER) | 0.5461 | MAE/SMOTER confirmed on Py3.14. **Pseudo-insulin feature HURTS** (noisy R²=0.34). Interaction explosion hurts. |
 | V23 | Optuna MAE + Optuna SMOTER | 0.5371 (XGB Optuna MAE) | — | **MSE-tuned params beat Optuna MAE params.** SMOTER Optuna too conservative. Partial run (killed). |
