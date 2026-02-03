@@ -14,7 +14,8 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V6 | Optuna (30 trials) | 0.5111 (XGB) | — | Killed by timeout; marginal gains |
 | V7 | Research-informed | 0.5271 (XGB d3 log eng) | **0.5368** (Top-15) | **Log target +0.015**, V7 features best |
 | V8b | Multi-seed diversity | 0.5287 (XGB d3 log s2024) | 0.5350 | Similar models hurt blending |
-| **V9** | **Family mega-blend** | **0.5287** | **0.5361** | **Diversity > quantity: XGB(59%)+ElasticNet(33%)** |
+| V9 | Family mega-blend | 0.5287 | 0.5361 | Diversity > quantity: XGB(59%)+ElasticNet(33%) |
+| **V10** | **Residual analysis + greedy blend** | **0.5287** | **0.5365** | **Residuals unpredictable; extreme HOMA [8+] bias=+4.94; 3-model greedy = 15-model random** |
 
 **Current Best: R² = 0.5368** (V7 Top-15 Dirichlet blend)
 
@@ -37,6 +38,19 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 - **SVR/KNN**: Wrong inductive bias (R²=0.36-0.45).
 - **Box-Cox target**: Slightly worse than log1p.
 - **PyTorch neural nets**: SIGSEGV on Python 3.14; needs different Python version.
+- **Residual correction (V10)**: Meta-learning on prediction errors makes things worse. Residuals have negative R² — they're unpredictable noise given our features.
+
+### V10 Residual Analysis (Key Discovery)
+| HOMA_IR Range | n | MAE | Bias | RMSE |
+|---|---|---|---|---|
+| Low [0-1) | 215 | 0.38 | -0.36 | 0.51 |
+| Normal [1-2) | 391 | 0.49 | -0.27 | 0.71 |
+| Elevated [2-3) | 216 | 0.74 | -0.04 | 1.02 |
+| High [3-5) | 168 | 1.08 | +0.52 | 1.36 |
+| Very High [5-8) | 49 | 2.16 | +1.89 | 2.58 |
+| **Extreme [8+)** | **39** | **4.94** | **+4.94** | **5.51** |
+
+Model systematically underpredicts high HOMA_IR. The 88 extreme samples (8%) contribute disproportionately to MSE.
 
 ### Why R²≈0.53 is the Ceiling (Analysis)
 - **HOMA_IR = glucose × insulin / 405**: Without insulin, fundamental information ceiling.
@@ -68,6 +82,6 @@ Top features by mutual information:
 ```
 data.csv                    # 1078 samples, 25+1 features
 eval_framework.py           # Standardized CV + metrics
-v1_baseline.py → v9_mega_blend.py  # Version progression
+v1_baseline.py → v10_residual_analysis.py  # Version progression
 v*_results.json             # Saved results per version
 ```
