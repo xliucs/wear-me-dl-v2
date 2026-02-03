@@ -21,6 +21,7 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V13 | Optuna weighted XGB + MLP | 0.5406 (Optuna wsqrt) | 0.5452 | Optuna re-tuned XGB WITH weights: d4, lr=0.017, n=612. MLP catastrophic with log target. |
 | **V14** | **Optuna LGB + GBR + feature selection** | **0.5398** (LGB Optuna wsqrt) | **0.5465** | **LGB matches XGB when Optuna-tuned with weights. GBR adds diversity. Feature selection hurts.** |
 | V15 | Optuna HGBR + cross-weight blend | 0.5398 (XGB opt w0.5) | 0.5462 | HGBR peaks at 0.5331 (weaker). Multi-weight-exponent blending doesn't beat V14. |
+| V16 | Nested target encoding + piecewise | 0.5398 (XGB Optuna wsqrt) | 0.5463 | Target encoding hurts trees (+TE worse). Piecewise models (split at HOMA=2) = 0.5354. No gain. |
 
 **Current Best: R² = 0.5465** (V14 blend)
 
