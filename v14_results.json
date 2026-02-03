@@ -1,0 +1,42 @@
+{
+  "best_r2": 0.5464590315162754,
+  "lgb_optuna": 0.539817827971536,
+  "lgb_params": {
+    "n_estimators": 768,
+    "max_depth": 4,
+    "learning_rate": 0.012896822409453213,
+    "subsample": 0.40898093780740985,
+    "colsample_bytree": 0.8886424956535822,
+    "min_child_samples": 36,
+    "reg_alpha": 3.9740880962356346,
+    "reg_lambda": 0.20345400679592135,
+    "num_leaves": 10
+  },
+  "gbr_optuna": 0.535490736097871,
+  "gbr_params": {
+    "n_estimators": 373,
+    "max_depth": 3,
+    "learning_rate": 0.03126143958203108,
+    "subsample": 0.46974693032602094,
+    "min_samples_leaf": 12,
+    "max_features": 0.5564532903055842
+  },
+  "best_single": {
+    "name": "lgb_optuna_wsqrt_v7",
+    "r2": 0.539817827971536
+  },
+  "all_scores": {
+    "lgb_optuna_wsqrt_v7": 0.539817827971536,
+    "xgb_optuna_wsqrt_v7": 0.5398094949802106,
+    "xgb_d3_log_wsqrt_v7": 0.5366717077220178,
+    "gbr_optuna_wsqrt_v7": 0.535490736097871,
+    "xgb_d3_log_v7": 0.5286941750545336,
+    "xgb_optuna_wsqrt_top50": 0.5204169354005523,
+    "lgb_d3_log_v7": 0.5191178422802016,
+    "xgb_optuna_wsqrt_top15": 0.5128617484497033,
+    "xgb_optuna_wsqrt_top25": 0.5110877820127898,
+    "enet_01_eng": 0.5109722793479534,
+    "xgb_optuna_wsqrt_top35": 0.5084795545198052
+  },
+  "elapsed": 605.2587966918945
+}
