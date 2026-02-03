@@ -1,0 +1,30 @@
+{
+  "best_r2": 0.5462726080881752,
+  "best_single": {
+    "name": "xgb_optuna_wsqrt_v7",
+    "r2": 0.5398094949802106
+  },
+  "nested_te_best": 0.5363168057826981,
+  "piecewise_best": 0.5354394862056384,
+  "greedy_r2": 0.5455555602125342,
+  "dirichlet_r2": 0.5462726080881752,
+  "dirichlet_top12_r2": 0.5408809386582131,
+  "all_scores": {
+    "xgb_optuna_wsqrt_v7": 0.5398094949802106,
+    "lgb_optuna_wsqrt_v7": 0.539427655452673,
+    "xgb_wsqrt_v7_s7777": 0.5364169709652029,
+    "lgb_optuna_wsqrt_v7+te": 0.5363168057826981,
+    "piecewise_t2.0_s2.0": 0.5354394862056384,
+    "xgb_wsqrt_v7_s99": 0.5352385875541524,
+    "xgb_optuna_wsqrt_v7+te": 0.534269229033713,
+    "gbr_optuna_wsqrt_v7": 0.5322742582365839,
+    "piecewise_t2.5_s2.0": 0.5311818192341,
+    "xgb_d3_log_v7": 0.5286941750545336,
+    "gbr_optuna_wsqrt_v7+te": 0.5243484415844502,
+    "lgb_d3_log_v7": 0.5191178422802016,
+    "extratrees_wsqrt_v7": 0.5169081506166695,
+    "enet_01_eng": 0.5109722793479534,
+    "huber_eng": 0.4760763136820271
+  },
+  "elapsed": 297.27424216270447
+}
