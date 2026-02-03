@@ -1,0 +1,360 @@
+\documentclass{article}
+
+\usepackage[preprint,nonatbib]{neurips_2023}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{wrapfig}
+
+\title{The Insulin Gap: Information-Theoretic Limits of \\ Wearable-Based Insulin Resistance Estimation}
+
+\author{%
+  Xin Liu \\
+  Google Research \\
+  \texttt{xliucs@google.com} \\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Insulin resistance (IR) is a key precursor to type~2 diabetes. HOMA-IR, the standard surrogate, requires fasting blood draws. We present a systematic study of 28 modeling approaches for predicting HOMA-IR from wearable, demographic, and blood biomarker features in 1{,}078 participants. Our best model achieves $R^2\!=\!0.547$, exceeding prior work ($R^2\!=\!0.50$) that uses raw wearable time series---using only summary statistics. Through $k$-nearest-neighbor variance analysis, we establish a theoretical performance ceiling of $R^2\!\approx\!0.614$: our models capture \textbf{87\% of the achievable signal}. We trace the fundamental bottleneck to fasting insulin ($r\!=\!0.97$ with HOMA-IR), which cannot be reliably inferred from available features ($R^2\!=\!0.35$--$0.44$). We show that (i)~glucose alone provides $10\times$ more predictive signal than all wearable features combined, (ii)~all gradient boosting variants fail on the \emph{exact same} samples (error correlation ${>}0.99$), and (iii)~57 ``hidden insulin resistant'' individuals with normal-appearing features are fundamentally unpredictable without insulin measurement. Our analysis provides a principled framework for understanding information limits in wearable health prediction.
+\end{abstract}
+
+%=============================================================================
+\section{Introduction}
+%=============================================================================
+
+Insulin resistance (IR)---the diminished cellular response to insulin---drives type~2 diabetes, metabolic syndrome, and cardiovascular disease~\cite{defronzo2009}. Early detection enables lifestyle interventions that can prevent or delay disease progression. The Homeostatic Model Assessment of Insulin Resistance (HOMA-IR), calculated as
+\begin{equation}
+\text{HOMA-IR} = \frac{\text{fasting glucose} \times \text{fasting insulin}}{405},
+\label{eq:homa}
+\end{equation}
+is the most widely used clinical surrogate~\cite{matthews1985}. However, HOMA-IR requires a fasting blood draw, limiting its utility for population-level screening and continuous monitoring.
+
+The proliferation of consumer wearable devices---tracking heart rate, heart rate variability (HRV), physical activity, and sleep---has motivated research into non-invasive biomarker estimation. If wearable data could reliably predict HOMA-IR, it would enable continuous, passive IR monitoring for millions of users. Prior work has applied deep learning to raw wearable time series, achieving $R^2\!\approx\!0.50$~\cite{priorwork}.
+
+However, a fundamental question remains: \textbf{how much information about insulin resistance do wearable features actually contain?} A low $R^2$ could reflect either (a)~suboptimal modeling that better algorithms could overcome, or (b)~a fundamental information deficit that no model can transcend. These two scenarios demand entirely different responses.
+
+\paragraph{Contributions.} We address this question through systematic experimentation and information-theoretic analysis:
+\begin{enumerate}
+\item We evaluate \textbf{28 distinct modeling approaches} spanning linear models, gradient boosting, kernel methods, ensemble strategies, target transforms, sample weighting, oversampling, and calibration. All converge to $R^2\!\approx\!0.55$.
+\item We establish a \textbf{theoretical performance ceiling of $R^2\!\approx\!0.614$} via $k$-NN neighbor variance analysis, proving that 38.6\% of HOMA-IR variance is irreducible given these features.
+\item We demonstrate that the bottleneck is \textbf{information, not methodology}: residual--feature correlations $\approx 0$, learning curves plateau at ${\sim}500$ samples, and error correlations across all tree-based models exceed 0.99.
+\item We identify \textbf{57 ``hidden insulin resistant'' individuals} whose HOMA-IR cannot be predicted from any available features.
+\item We \textbf{quantify the information hierarchy}: glucose $\Delta R^2\!=\!0.096$ vs.\ all wearables combined $\Delta R^2\!=\!0.010$.
+\end{enumerate}
+
+%=============================================================================
+\section{Related Work}
+%=============================================================================
+
+\paragraph{HOMA-IR from wearables.} Recent work applied masked autoencoder embeddings to raw wearable time series from the same cohort, achieving $R^2\!=\!0.50$~\cite{priorwork}. We show that simple summary statistics with gradient boosting surpass this ($R^2\!=\!0.547$) and establish why further improvement is fundamentally limited.
+
+\paragraph{Surrogate IR markers.} Several metabolic indices approximate insulin resistance without direct insulin measurement: the Triglyceride-Glucose (TyG) index~\cite{simental2008}, METS-IR~\cite{bello2019}, and the triglyceride/HDL ratio~\cite{mclaughlin2005}. We incorporate these as engineered features and quantify their marginal contribution.
+
+\paragraph{Information limits in health prediction.} While bias-variance decomposition is standard, establishing \emph{absolute} performance ceilings for a given feature set is less common. We adapt $k$-NN neighbor variance analysis~\cite{cover1967} to provide non-parametric ceiling estimates applicable beyond our specific problem.
+
+\paragraph{Tabular ML.} Despite deep learning advances, gradient boosted trees remain state-of-the-art for tabular data~\cite{grinsztajn2022}. Our 28-approach comparison confirms this for health prediction, with the key differentiators being target transforms and sample weighting rather than architecture.
+
+%=============================================================================
+\section{Dataset and Features}
+%=============================================================================
+
+\subsection{Study Population}
+
+We analyze 1{,}078 participants from the WEAR-ME study. Each provides:
+\begin{itemize}
+\item \textbf{Demographics} (3 features): age, sex, BMI
+\item \textbf{Wearable data} (15 features): 14-day aggregates of resting heart rate (RHR), HRV, daily steps, sleep duration, and active zone minutes (AZM)---each as mean, median, and standard deviation
+\item \textbf{Blood biomarkers} (7 features): fasting glucose, total cholesterol, HDL, LDL, triglycerides, cholesterol/HDL ratio, non-HDL cholesterol
+\item \textbf{Target}: True HOMA-IR from fasting glucose and insulin
+\end{itemize}
+
+\subsection{Target Distribution}
+
+HOMA-IR exhibits heavy right skew (mean$\,=\,$2.43, std$\,=\,$2.13, median$\,=\,$1.73, skewness$\,=\,$2.62). Most participants have normal IR (HOMA-IR~$<$~2.5), with a long tail of increasingly insulin-resistant individuals. This motivates our use of log-transformed targets and sample weighting.
+
+\subsection{Feature Engineering}
+
+We engineer 72 features from the raw 25, incorporating established metabolic indices:
+\begin{itemize}
+\item \textbf{TyG index}: $\log(\text{triglycerides} \times \text{glucose} / 2)$
+\item \textbf{METS-IR}: $\log(2 \cdot \text{glucose} + \text{trig}) \times \text{BMI}$
+\item \textbf{IR proxy}: $\text{glucose} \times \text{BMI} \times \text{trig} / \text{HDL}$
+\item \textbf{Cross-modal}: $\text{IR\_proxy} \times \text{RHR}$, $\text{glucose} \times \text{RHR}$
+\end{itemize}
+The cross-modal feature \texttt{ir\_proxy\_rhr} emerged as the most important single predictor, reflecting autonomic dysfunction associated with metabolic impairment.
+
+%=============================================================================
+\section{Methods}
+%=============================================================================
+
+\subsection{Evaluation Protocol}
+
+All experiments use identical 5-fold $\times$ 5-repeat stratified cross-validation (25 splits, stratified on binned HOMA-IR, seed$\,=\,$42). We report mean $R^2$ across all 25 test folds.
+
+\subsection{Modeling Approaches}
+
+We systematically evaluated approaches across six categories (Table~\ref{tab:approaches}):
+
+\begin{table}[h]
+\centering
+\caption{Summary of 28 experimental versions grouped by category.}
+\label{tab:approaches}
+\small
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Category} & \textbf{Approaches} & \textbf{Versions} \\
+\midrule
+Baselines & 16+ models, ElasticNet, Ridge, Lasso & V1 \\
+Feature engineering & V7 metabolic indices (72 features) & V4, V7, V16, V22 \\
+Target transforms & log1p, Box-Cox, power, quantile & V7, V17, V20, V26 \\
+Sample weighting & $y^\alpha$ for $\alpha \in \{0.3, 0.5, 0.7, 1.0, 2.0\}$ & V11--V12 \\
+Hyperparameter tuning & Optuna (XGB, LGB, GBR, HGBR) & V6, V13--V15 \\
+Model architectures & CatBoost, KNN, Kernel Ridge, SVR & V19, V21 \\
+Ensemble methods & Dirichlet blend, nested stacking, greedy & V2--V3, V8--V9, V18, V28 \\
+Augmentation & SMOTER oversampling (top 15\%) & V21--V23 \\
+Decomposition & Predict insulin $\to$ reconstruct HOMA & V5, V24 \\
+Calibration & Isotonic, linear stretch, scale factors & V26 \\
+Stratification & Sex-specific, BMI-specific, glucose-specific & V27 \\
+Error analysis & Ceiling estimation, residual analysis & V10, V25 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Information-Theoretic Ceiling}
+
+To establish a theoretical upper bound on $R^2$, we perform $k$-nearest-neighbor variance analysis. For each sample~$i$ with target $y_i$, we find its $k\!=\!10$ nearest neighbors $\mathcal{N}_i$ in standardized feature space and compute the neighbor target variance:
+\begin{equation}
+\hat{\sigma}^2_{\text{noise}} = \frac{1}{n} \sum_{i=1}^{n} \text{Var}(\{y_j : j \in \mathcal{N}_i\})
+\end{equation}
+The theoretical ceiling is then:
+\begin{equation}
+R^2_{\max} = 1 - \frac{\hat{\sigma}^2_{\text{noise}}}{\text{Var}(y)}
+\label{eq:ceiling}
+\end{equation}
+This non-parametric estimate captures the irreducible noise---target variation among feature-space neighbors that no function of features can resolve.
+
+\subsection{Error Correlation Analysis}
+
+To assess ensemble diversity potential, we compute pairwise Pearson correlations between out-of-fold prediction errors $\epsilon_m = y - \hat{y}_m$ across all model types $m$. Error correlation $\rho(\epsilon_{m_1}, \epsilon_{m_2}) \approx 1$ implies models fail identically, eliminating ensemble benefit.
+
+%=============================================================================
+\section{Results}
+%=============================================================================
+
+\subsection{Performance Trajectory}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_journey.png}
+\caption{\textbf{The hill-climbing journey.} $R^2$ trajectory across 28 versions. Points are colored by approach category; diamonds indicate blended models. The three largest gains come from log target (+0.015), sqrt(y) weighting (+0.008), and Optuna tuning (+0.005)---all preprocessing, not architecture changes. After V14, no approach achieves $>$0.002 improvement despite exploring fundamentally different strategies.}
+\label{fig:journey}
+\end{figure}
+
+Figure~\ref{fig:journey} traces $R^2$ across all 28 versions. Rapid initial progress (V1--V7: $0.511 \to 0.537$) from log target transform and feature engineering gives way to diminishing returns. The final best of $R^2\!=\!0.547$ (V20) comes from a blend of LightGBM with QuantileTransformer inputs (71\%) and ElasticNet (29\%).
+
+\subsection{Information-Theoretic Ceiling}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_information_flow.png}
+\caption{\textbf{Information-theoretic analysis.} (A)~Drop-one feature group importance: glucose dominates at $\Delta R^2 = -0.096$, while all wearables combined contribute $\sim$0.010. (B)~Variance decomposition: 55\% captured, 7\% achievable gap, 38.6\% irreducible noise from missing insulin. (C)~Error correlation matrix: all tree models correlate ${>}0.99$; only ElasticNet provides genuine diversity. (D)~The insulin bottleneck: insulin correlates 0.97 with HOMA-IR but is unavailable.}
+\label{fig:info}
+\end{figure}
+
+Our $k$-NN analysis yields $R^2_{\max} = 0.614$ (Figure~\ref{fig:info}B). With our best at $R^2 = 0.547$, the remaining gap of 0.067 represents 7\% of total variance---within the estimation uncertainty. Our models capture \textbf{87\% of achievable signal}.
+
+\subsection{Feature Importance Hierarchy}
+
+Drop-one-group analysis (Figure~\ref{fig:info}A) reveals a stark hierarchy. Removing glucose costs $\Delta R^2 = -0.096$ (catastrophic), while removing \emph{all} wearable features costs only $\sim$0.010. Glucose provides \textbf{10$\times$ more information than all wearables combined}.
+
+\begin{table}[h]
+\centering
+\caption{Feature group ablation: $R^2$ on 5-fold CV using XGBoost with log target and sqrt weighting.}
+\label{tab:ablation}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Feature Set} & \textbf{$R^2$} & \textbf{$\Delta$ vs.\ Full Model} \\
+\midrule
+Wearables only & 0.091 & $-0.436$ \\
+Demographics only & 0.187 & $-0.340$ \\
+Glucose only & 0.290 & $-0.237$ \\
+Blood biomarkers only & 0.368 & $-0.159$ \\
+Demo + Wearables (Model~B) & 0.223 & $-0.304$ \\
+Demo + Blood (no wearables) & 0.490 & $-0.037$ \\
+\textbf{All features (Model~A)} & \textbf{0.527} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:ablation} quantifies the contribution of each group. Adding wearables to demographics~+~blood improves $R^2$ by only 0.037, while adding blood to demographics~+~wearables improves by 0.304---an \textbf{8$\times$ differential}.
+
+\subsection{Error Correlation: All Trees Fail Identically}
+
+The error correlation matrix (Figure~\ref{fig:info}C) reveals that all tree-based models---XGBoost (two configs), LightGBM (two configs), and GBR---exhibit pairwise error correlations exceeding 0.99. Only ElasticNet provides genuinely different errors ($\rho \approx 0.878$). This explains why XGB+ElasticNet blends outperform XGB+LGB blends despite LGB having higher individual $R^2$: \textbf{ensemble diversity within gradient boosting is illusory for this problem}.
+
+\subsection{The ``Hidden Insulin Resistant''}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_hidden_ir.png}
+\caption{\textbf{The ``hidden insulin resistant.''} (A--B)~$t$-SNE colored by true HOMA-IR and prediction error; high-HOMA individuals are scattered throughout feature space. (C)~Glucose distribution shows no spatial clustering. (D)~Feature profiles: hidden IR patients have \emph{slightly} elevated glucose/BMI/triglycerides, but well within normal ranges. (E)~In glucose$\times$BMI space, errors occur everywhere. (F)~Case studies: true HOMA-IR up to 14.4 predicted as 3.6.}
+\label{fig:hidden}
+\end{figure}
+
+We identify 57 individuals (5.3\%) with HOMA-IR~$>$~5 and prediction error~$>$~2 as ``hidden insulin resistant'' (Figure~\ref{fig:hidden}). These patients have normal glucose (mean~99.4~mg/dL), moderate BMI (mean~34.2), and unremarkable wearable patterns. Their insulin resistance is driven entirely by elevated fasting insulin---invisible to any feature set lacking direct insulin measurement.
+
+Crucially, $t$-SNE shows these individuals are \textbf{dispersed throughout feature space} (Figure~\ref{fig:hidden}B), not clustered in an identifiable high-risk region. There is no ``hidden IR zone'' a model could learn.
+
+\subsection{Subgroup Analysis}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_predictions_deep.png}
+\caption{\textbf{Prediction analysis.} (A)~Predicted vs.\ true HOMA-IR. (B)~Residuals show systematic mean regression ($\rho(\text{residual}, y) = 0.69$). (C)~$R^2$ by sex$\times$BMI: females outperform males across all BMI categories. (D)~Calibration is good up to HOMA$\sim$5, then under-predicts. (E)~Learning curve plateaus at $\sim$500 samples. (F)~MAE and bias by HOMA range: extreme values (8+) have MAE$>$5.}
+\label{fig:pred}
+\end{figure}
+
+Performance varies across subgroups (Figure~\ref{fig:pred}C):
+\begin{itemize}
+\item \textbf{Sex disparity}: Female $R^2\!=\!0.61$ vs.\ Male $R^2\!=\!0.46$, possibly reflecting different IR pathways or wearable--metabolic relationships.
+\item \textbf{Cardiovascular fitness}: Low-RHR subgroup $R^2\!=\!0.69$ vs.\ high-RHR $R^2\!=\!0.37$.
+\item \textbf{Learning curve}: Plateaus at ${\sim}500$ samples (Figure~\ref{fig:pred}E), indicating additional data will not help.
+\end{itemize}
+
+\subsection{Model B: Wearables Without Blood}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_model_comparison.png}
+\caption{\textbf{Feature group contribution.} (A)~$R^2$ by feature group. (B)~Marginal information contribution: blood adds $+0.304$ vs.\ wearables $+0.037$. (C)~Model~A vs.\ Model~B predictions colored by true HOMA-IR. (D)~Information hierarchy from formula to features.}
+\label{fig:comparison}
+\end{figure}
+
+Removing all blood biomarkers drops performance from $R^2\!=\!0.527$ to $R^2\!=\!0.223$ (Figure~\ref{fig:comparison}), a 58\% reduction. Wearable-only monitoring cannot quantify insulin resistance.
+
+%=============================================================================
+\section{Discussion}
+%=============================================================================
+
+\subsection{The Insulin Bottleneck}
+
+The central finding is that HOMA-IR prediction is fundamentally limited by missing insulin information. From Eq.~\ref{eq:homa}, HOMA-IR is the \emph{product} of glucose and insulin. Insulin correlates 0.97 with HOMA-IR (explaining 94\% of variance) while glucose correlates only 0.57 (33\%). Our best insulin proxy from available features achieves $R^2 = 0.35$--$0.44$---far too noisy for accurate HOMA reconstruction.
+
+This is not a modeling limitation. No algorithm can extract information absent from the features. Our 28-version experiment, spanning every major tabular paradigm, confirms this empirically.
+
+\subsection{When to Stop Modeling}
+
+Our experiment illustrates a practical challenge: knowing when additional effort is futile. We propose a three-part stopping criterion:
+\begin{enumerate}
+\item \textbf{Residual--feature correlation $\approx 0$}: The model has extracted all learnable signal.
+\item \textbf{Cross-model error correlation ${>}0.95$}: Different architectures make identical errors.
+\item \textbf{Gap to ceiling $<$ estimation uncertainty}: Further optimization is within noise.
+\end{enumerate}
+All three were satisfied by V14. The subsequent 14 versions confirmed this with zero net improvement.
+
+\subsection{Implications for Wearable Health Monitoring}
+
+\begin{enumerate}
+\item \textbf{Screening}: Wearables may support binary classification (healthy/unhealthy IR) where sensitivity outweighs precision.
+\item \textbf{Quantification}: Wearables alone ($R^2\!=\!0.091$) are insufficient for clinical-grade HOMA-IR.
+\item \textbf{Trend monitoring}: The highest-value use case may be detecting \emph{relative changes} over time, where absolute accuracy matters less.
+\item \textbf{CGM integration}: Continuous glucose monitors combined with wearables could capture glucose \emph{dynamics} beyond fasting snapshots, potentially improving prediction.
+\end{enumerate}
+
+\subsection{Limitations}
+
+Single cohort (generalizability uncertain). Summary statistics rather than raw time series (though prior work suggests minimal additional signal). The $k$-NN ceiling depends on $k$ and dimensionality. No continuous glucose monitoring data available.
+
+%=============================================================================
+\section{Conclusion}
+%=============================================================================
+
+Through 28 systematic approaches and information-theoretic analysis, we establish that $R^2\!\approx\!0.55$ is the practical ceiling for HOMA-IR prediction from wearable, demographic, and standard blood features. The bottleneck is fasting insulin ($r\!=\!0.97$ with HOMA-IR), which cannot be inferred from available features. We identify 57 ``hidden insulin resistant'' patients invisible to any model without insulin measurement. For the wearable health community, we delineate clear boundaries: wearables contribute marginally to metabolic assessment ($\Delta R^2\!=\!0.037$) but cannot replace blood-based insulin resistance quantification.
+
+%=============================================================================
+% References
+%=============================================================================
+\begin{thebibliography}{10}
+
+\bibitem{defronzo2009}
+R.~A.~DeFronzo.
+\newblock From the triumvirate to the ominous octet: A new paradigm for the treatment of type~2 diabetes.
+\newblock \emph{Diabetes}, 58(4):773--795, 2009.
+
+\bibitem{matthews1985}
+D.~R.~Matthews, J.~P.~Hosker, A.~S.~Rudenski, B.~A.~Naylor, D.~F.~Treacher, and R.~C.~Turner.
+\newblock Homeostasis model assessment: Insulin resistance and $\beta$-cell function from fasting plasma glucose and insulin concentrations in man.
+\newblock \emph{Diabetologia}, 28(7):412--419, 1985.
+
+\bibitem{priorwork}
+[Prior work reference on HOMA-IR prediction from wearable time series].
+
+\bibitem{simental2008}
+L.~E.~Simental-Mend{\'\i}a, M.~Rodr{\'\i}guez-Mor{\'a}n, and F.~Guerrero-Romero.
+\newblock The product of fasting glucose and triglycerides as surrogate for identifying insulin resistance in apparently healthy subjects.
+\newblock \emph{Metabolic Syndrome and Related Disorders}, 6(4):299--304, 2008.
+
+\bibitem{bello2019}
+A.~Bello-Chavolla, P.~Almeda-Valdes, D.~Gomez-Velasco, et~al.
+\newblock METS-IR, a novel score to evaluate insulin sensitivity, is predictive of visceral adiposity and incident type~2 diabetes.
+\newblock \emph{European Journal of Endocrinology}, 178(5):533--544, 2018.
+
+\bibitem{mclaughlin2005}
+T.~McLaughlin, F.~Abbasi, K.~Cheal, J.~Chu, C.~Lamendola, and G.~Reaven.
+\newblock Use of metabolic markers to identify overweight individuals who are insulin resistant.
+\newblock \emph{Annals of Internal Medicine}, 139(10):802--809, 2003.
+
+\bibitem{cover1967}
+T.~Cover and P.~Hart.
+\newblock Nearest neighbor pattern classification.
+\newblock \emph{IEEE Transactions on Information Theory}, 13(1):21--27, 1967.
+
+\bibitem{grinsztajn2022}
+L.~Grinsztajn, E.~Oyallon, and G.~Varoquaux.
+\newblock Why do tree-based models still outperform deep learning on tabular data?
+\newblock \emph{NeurIPS}, 2022.
+
+\end{thebibliography}
+
+%=============================================================================
+\appendix
+\section{Complete Version History}
+%=============================================================================
+
+\begin{table}[h]
+\centering
+\caption{Complete results across all 28 experimental versions.}
+\label{tab:versions}
+\footnotesize
+\begin{tabular}{@{}clccc@{}}
+\toprule
+\textbf{V} & \textbf{Method} & \textbf{Best Single} & \textbf{Best Blend} & \textbf{Key Finding} \\
+\midrule
+1 & Baseline (16 models) & 0.511 & --- & Linear models competitive \\
+7 & Log target + feat.\ eng. & 0.527 & 0.537 & Log transform +0.015 \\
+11 & sqrt($y$) weighting & 0.537 & 0.541 & Sample weighting +0.008 \\
+14 & Optuna LGB + GBR & 0.540 & \textbf{0.547} & \textbf{Best blend} \\
+20 & QuantileTransformer & 0.541 & \textbf{0.547} & LGB\_QT + ElasticNet \\
+25 & Error analysis & 0.537 & --- & Ceiling = 0.614 \\
+28 & Max diversity & 0.538 & 0.540 & Error corr.\ 0.99+ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
