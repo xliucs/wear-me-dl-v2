@@ -15,9 +15,10 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V7 | Research-informed | 0.5271 (XGB d3 log eng) | **0.5368** (Top-15) | **Log target +0.015**, V7 features best |
 | V8b | Multi-seed diversity | 0.5287 (XGB d3 log s2024) | 0.5350 | Similar models hurt blending |
 | V9 | Family mega-blend | 0.5287 | 0.5361 | Diversity > quantity: XGB(59%)+ElasticNet(33%) |
-| **V10** | **Residual analysis + greedy blend** | **0.5287** | **0.5365** | **Residuals unpredictable; extreme HOMA [8+] bias=+4.94; 3-model greedy = 15-model random** |
+| V10 | Residual analysis + greedy blend | 0.5287 | 0.5365 | Residuals unpredictable; extreme HOMA [8+] bias=+4.94; 3-model greedy = 15-model random |
+| **V11** | **Tail fix: sample weighting** | **0.5367** (sqrt weight) | **0.5414** | **sqrt(y) sample weighting = NEW BEST. Upweighting high HOMA helps model learn tail.** |
 
-**Current Best: R² = 0.5368** (V7 Top-15 Dirichlet blend)
+**Current Best: R² = 0.5414** (V11 Dirichlet blend: XGB_wsqrt 53% + ElasticNet 28% + XGB_wprop 20%)
 
 ## Dataset
 - **Samples:** 1,078 participants
@@ -28,9 +29,10 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 
 ### What Works
 1. **Log target transform** (+0.015 R²): HOMA_IR has heavy right tail (skewness=2.62). Predicting log1p(y) and inverting consistently improves all models.
-2. **V7 engineered features** (72 features): TyG, METS-IR, glucose×BMI, trig/HDL, ir_proxy×RHR, log_homa_proxy. Better than raw (25) for trees.
-3. **XGBoost depth 3** with low learning rate: Shallow trees + regularization beat deeper models.
-4. **Diverse blending**: Mixing different model TYPES (XGB + ElasticNet + LGB) beats blending similar models (5 XGB seeds).
+2. **sqrt(y) sample weighting** (+0.008 R²): Upweighting high-HOMA samples forces model to learn the tail. Sweet spot between uniform and y²-weighting.
+3. **V7 engineered features** (72 features): TyG, METS-IR, glucose×BMI, trig/HDL, ir_proxy×RHR, log_homa_proxy. Better than raw (25) for trees.
+4. **XGBoost depth 3** with low learning rate: Shallow trees + regularization beat deeper models.
+5. **Diverse blending**: Mixing different model TYPES (XGB + ElasticNet + LGB) beats blending similar models (5 XGB seeds).
 
 ### What Doesn't Work
 - **L2 stacking**: Leaks if not nested properly. Honest stacking ≈ simple blending.
@@ -82,6 +84,6 @@ Top features by mutual information:
 ```
 data.csv                    # 1078 samples, 25+1 features
 eval_framework.py           # Standardized CV + metrics
-v1_baseline.py → v10_residual_analysis.py  # Version progression
+v1_baseline.py → v11_tail_fix.py  # Version progression
 v*_results.json             # Saved results per version
 ```
