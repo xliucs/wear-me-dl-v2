@@ -16,9 +16,10 @@ Predicting **True_HOMA_IR** from demographics, wearables, and blood biomarkers.
 | V8b | Multi-seed diversity | 0.5287 (XGB d3 log s2024) | 0.5350 | Similar models hurt blending |
 | V9 | Family mega-blend | 0.5287 | 0.5361 | Diversity > quantity: XGB(59%)+ElasticNet(33%) |
 | V10 | Residual analysis + greedy blend | 0.5287 | 0.5365 | Residuals unpredictable; extreme HOMA [8+] bias=+4.94; 3-model greedy = 15-model random |
-| **V11** | **Tail fix: sample weighting** | **0.5367** (sqrt weight) | **0.5414** | **sqrt(y) sample weighting = NEW BEST. Upweighting high HOMA helps model learn tail.** |
+| V11 | Tail fix: sample weighting | **0.5367** (sqrt weight) | **0.5414** | sqrt(y) sample weighting = NEW BEST. Upweighting high HOMA helps model learn tail. |
+| V12 | Weight exponent search | 0.5367 (y^0.5 optimal) | 0.5414 | Confirmed y^0.5 is optimal exponent. Weighting helps XGB +0.008 but not LGB/HGBR. No blend gain. |
 
-**Current Best: R² = 0.5414** (V11 Dirichlet blend: XGB_wsqrt 53% + ElasticNet 28% + XGB_wprop 20%)
+**Current Best: R² = 0.5414** (V11/V12 blend: XGB_wsqrt 53% + ElasticNet 28% + XGB_wprop 20%)
 
 ## Dataset
 - **Samples:** 1,078 participants
@@ -84,6 +85,6 @@ Top features by mutual information:
 ```
 data.csv                    # 1078 samples, 25+1 features
 eval_framework.py           # Standardized CV + metrics
-v1_baseline.py → v11_tail_fix.py  # Version progression
+v1_baseline.py → v12_weight_exploit.py  # Version progression
 v*_results.json             # Saved results per version
 ```
