@@ -1,0 +1,37 @@
+{
+  "best_r2_a": 0.5412099839787536,
+  "best_single": {
+    "name": "xgb_shallow_d=3",
+    "r2": 0.5383914717362992
+  },
+  "hypotheses": {
+    "H1_sex_stratified": 0.5184449176591512,
+    "H2_regularization": {
+      "Baseline": 0.5364842379609197,
+      "Shallow d=3": 0.5383914717362992,
+      "Heavy reg": 0.5305901100732187,
+      "Low subsample": 0.5349739221203247,
+      "Very shallow d=2": 0.537135890039389,
+      "High mcw=60": 0.532860216820866,
+      "All aggressive": 0.4920704979334478
+    },
+    "H3_bmi_stratified": 0.5301683275754034,
+    "H4_glucose_stratified": 0.5144515367170983
+  },
+  "blend_weights": {
+    "xgb_base": 0.04749108158524069,
+    "xgb_sex": 0.029013716099363623,
+    "xgb_baseline": 0.041320240811934084,
+    "xgb_shallow_d=3": 0.05834742568427323,
+    "xgb_heavy_reg": 0.19342588582679016,
+    "xgb_low_subsample": 0.007083494752386643,
+    "xgb_very_shallow_d=2": 0.2950638479714965,
+    "xgb_high_mcw=60": 0.01897919500595337,
+    "xgb_all_aggressive": 0.0010190593465130144,
+    "xgb_bmi_strat": 0.2764528016254875,
+    "xgb_gluc_strat": 0.004936533685306945,
+    "lgb": 0.0024825908362154647,
+    "enet": 0.024384126769038703
+  },
+  "elapsed": 564.3827128410339
+}
